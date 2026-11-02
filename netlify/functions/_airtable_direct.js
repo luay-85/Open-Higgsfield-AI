@@ -116,7 +116,15 @@ async function meta(path, options = {}) {
   try { body = raw ? JSON.parse(raw) : {} } catch { body = { raw } }
   if (!res.ok) {
     const detail = body?.error?.message || body?.error?.type || body?.error || raw || res.statusText
-    const error = new Error(`Airtable setup failed (${res.status}): ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`)
+    const step = options.method === 'POST'
+      ? 'creating tables/fields (needs the schema.bases:write scope)'
+      : path === 'bases' || path.startsWith('bases?')
+        ? 'listing your bases (needs the schema.bases:read scope)'
+        : 'reading the base tables (needs schema.bases:read and access to this base)'
+    const hint = res.status === 401 || res.status === 403
+      ? ` Fix: open airtable.com/create/tokens, edit the token and make sure it has all four scopes (data.records:read, data.records:write, schema.bases:read, schema.bases:write) and your base under Access. The token itself stays the same, so nothing changes in Netlify.`
+      : ''
+    const error = new Error(`Airtable setup failed while ${step} (${res.status}): ${typeof detail === 'string' ? detail : JSON.stringify(detail)}.${hint}`)
     error.status = res.status
     throw error
   }
