@@ -55,7 +55,7 @@ function checkEnv({ airtable = false, kie = true } = {}) {
   // requirement is that the Composio credential exists (and the airtable
   // toolkit is connected when storage is checked).
   const missing = []
-  if (!composio.hasComposio()) missing.push('COMPOSIO_API_KEY')
+  if (!composio.hasComposio()) missing.push('AIRTABLE_PAT (or COMPOSIO_API_KEY)')
   if (!missing.length) return null
   return json(500, {
     error: `Missing environment variable${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}.`,

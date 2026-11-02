@@ -10,7 +10,9 @@ const ORG_ID = process.env.COMPOSIO_ORG_ID || 'ok_BENL25Qrhbop'
 const PROJECT_ID = process.env.COMPOSIO_PROJECT_ID || 'pr_fb2sLe69ksF_'
 
 const apiKey = () => String(process.env.COMPOSIO_API_KEY || '').trim()
-const hasComposio = () => Boolean(apiKey())
+const direct = require('./_airtable_direct')
+// In direct Airtable mode (token set, no Composio key) Composio is not needed.
+const hasComposio = () => Boolean(apiKey()) || direct.isDirectMode()
 
 // ak_ keys are org keys sent via x-api-key; uak_ keys are user keys that need
 // the org/project headers. Both are accepted by the v3.1 proxy.
@@ -90,6 +92,7 @@ async function proxyExecute(accountId, endpoint, method = 'GET', body = undefine
 // fetch()-shaped wrapper for a toolkit-hosted absolute URL. Returns
 // { ok, status, text, json } so call sites keep their existing semantics.
 async function toolkitFetch(toolkit, url, options = {}) {
+  if (toolkit === 'airtable' && direct.isDirectMode()) return direct.directFetch(url, options)
   const account = await activeAccount(toolkit)
   const method = String(options.method || 'GET').toUpperCase()
   let body = options.body

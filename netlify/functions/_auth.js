@@ -119,7 +119,16 @@ function sha256(value) {
   return crypto.createHash('sha256').update(String(value)).digest('hex')
 }
 
-const SESSION_SECRET = sha256('matai-content-factory-session-v2') // hardcoded — no env needed
+// Prefer a private secret: SESSION_SECRET if set, otherwise one derived from the
+// (private) Airtable token in direct mode. The public fallback is kept for the
+// original Composio deployment so its existing sessions stay valid.
+const SESSION_SECRET = (() => {
+  const explicit = String(process.env.SESSION_SECRET || '').trim()
+  if (explicit) return sha256(`matai-session:${explicit}`)
+  const direct = require('./_airtable_direct')
+  if (direct.isDirectMode()) return sha256(`matai-session:${direct.token()}`)
+  return sha256('matai-content-factory-session-v2')
+})()
 function secret() {
   return SESSION_SECRET
 }

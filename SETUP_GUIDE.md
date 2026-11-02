@@ -14,6 +14,22 @@ Verified in this session: `npm install` and `npx vite build` both succeed (Node 
 
 ---
 
+## ⭐ Simple setup (recommended): no Composio, automatic tables
+
+In this mode the app talks to Airtable directly with a personal access token, finds your base by name, and creates every table and field it needs. It turns on when `AIRTABLE_PAT` is set and `COMPOSIO_API_KEY` is **not** set.
+
+1. Create an Airtable base named **MATAI Studio** (it can be empty).
+2. Create a personal access token at airtable.com/create/tokens with these scopes: `data.records:read`, `data.records:write`, `schema.bases:read`, `schema.bases:write`. Give it access to that base.
+3. In Netlify, set the environment variable **`AIRTABLE_PAT`** = your token. This is the only variable you need.
+4. Deploy, then open **`https://<your-site>.netlify.app/setup`**. It checks everything, creates the tables, and lets you create your first sign-in account (name + PIN). The page switches itself off once an account exists.
+5. Sign in on the home page and paste your kie.ai API key when asked.
+
+Optional variables: `AIRTABLE_BASE_ID` (use a specific base instead of finding it by name), `AIRTABLE_BASE_NAME` (a different base name), `SESSION_SECRET` (otherwise login sessions are signed with a secret derived from your token).
+
+The sections below describe the original Composio setup and all the details.
+
+---
+
 ## 1. Accounts you need
 
 | Service | Why | Where |
